@@ -1,5 +1,5 @@
-name: Ios + Release
-on: 
+name: Mobile + Release
+on:   
   push:
     branches: [ main ]
   pull_request:
@@ -10,12 +10,12 @@ permissions:
   discussions: write
 
 env:
-  PROJECT_NAME: JSEngine
-  REPO_PATH: matthewfro1717/FNF-JS-Engine-Window-Size-Fix
+  PROJECT_NAME: PsychEngine
+  REPO_PATH: MobilePorting/FNF-PsychEngine-Mobile
 
 jobs:
   get-commit-hash:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     outputs:
       commit_hash: ${{ steps.get_commit_hash.outputs.COMMIT_HASH }}
     steps:
@@ -43,8 +43,14 @@ jobs:
     strategy:
       matrix:
         include:
+          - name: Android
+            os: macos-15
+            buildArgs: "android -final -D officialBuild"
+            setupCommand: sh ./setup/unix.sh
+            artifactName: androidBuild
+            artifactPath: "export/release/android/bin/app/build/outputs/apk/release/*.apk"
           - name: iOS
-            os: macos-latest
+            os: macos-15
             setupCommand: sh ./setup/unix.sh
             buildArgs: "ios -final -nosign -D officialBuild"
             artifactName: iOSBuild
@@ -60,9 +66,18 @@ jobs:
 
   Releaser:
     needs: [get-commit-hash, build]
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     permissions: write-all
     steps:
+      - name: Download Android Build
+        uses: actions/download-artifact@main
+        with:
+           name: androidBuild
+           path: /home/runner
+
+      - name: Move Android File
+        run: mv /home/runner/${{ env.PROJECT_NAME }}-release.apk /home/runner/${{ env.PROJECT_NAME }}-Android.apk
+
       - name: Download iOS Build
         uses: actions/download-artifact@main
         with:
@@ -79,4 +94,5 @@ jobs:
           tag_name: "devbuild-${{ needs.get-commit-hash.outputs.commit_hash }}"
           prerelease: true
           files: |
+            /home/runner/*.apk
             /home/runner/*.zip
