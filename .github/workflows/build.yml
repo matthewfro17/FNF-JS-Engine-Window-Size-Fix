@@ -23,8 +23,8 @@ on:
         type: string
 
 env:
-  HAXE_VERSION: 4.3.4
-  PROJECT_NAME: JSEngine
+  HAXE_VERSION: 4.3.6
+  PROJECT_NAME: PsychEngine
 
 jobs:
   build:
@@ -71,7 +71,7 @@ jobs:
         if: inputs.name == 'Android'
         run: |
           haxelib run lime config ANDROID_SDK $ANDROID_HOME
-          haxelib run lime config ANDROID_NDK $ANDROID_NDK_ROOT
+          haxelib run lime config ANDROID_NDK_ROOT ${{ steps.setup-ndk.outputs.ndk-path }}
           haxelib run lime config JAVA_HOME $JAVA_HOME_17_arm64
           haxelib run lime config ANDROID_SETUP true
 
