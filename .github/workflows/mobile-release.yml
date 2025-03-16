@@ -11,7 +11,7 @@ permissions:
 
 env:
   PROJECT_NAME: PsychEngine
-  REPO_PATH: MobilePorting/FNF-PsychEngine-Mobile
+  REPO_PATH: matthewfro17/FNF-JS-Engine-Window-Size-Fix
 
 jobs:
   get-commit-hash:
