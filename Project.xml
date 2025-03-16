@@ -2,7 +2,7 @@
 <project>
 	<!-- _________________________ Application Settings _________________________ -->
 
-	<app title="Friday Night Funkin': JS Engine" file="PsychEngine" packageName="com.shadowmario.psychengine" package="com.shadowmario.psychengine" main="Main" version="0.2.8" company="ShadowMario" />
+	<app title="Friday Night Funkin': Psych Engine" file="PsychEngine" packageName="com.shadowmario.psychengine" package="com.shadowmario.psychengine" main="Main" version="0.2.8" company="ShadowMario" />
 
 	<!--Switch Export with Unique ApplicationID and Icon-->
 	<set name="APP_ID" value="0x0100f6c013bbc000" />
@@ -64,29 +64,9 @@
 
 	<classpath name="source" />
 
-	<set name="BUILD_DIR" value="export/debug" if="debug" />
-	<set name="BUILD_DIR" value="export/release" unless="debug" />
-	<set name="BUILD_DIR" value="export/32bit" if="32bits" />
+	<!-- __________________________ Game Assets & Etc. __________________________ -->
 
-	<classpath name="source" />
-	
-	<!-- PSYCH ENGINE CUSTOMIZATION -->
-	<define name="MODS_ALLOWED" if="desktop || mobile" unless="web" />
-	<define name="LUA_ALLOWED" if="desktop || mobile" unless="web" />
-	<define name="ACHIEVEMENTS_ALLOWED" />
-	<define name="VIDEOS_ALLOWED" if="desktop || mobile" unless="32bits || web"/>
-	<define name="PSYCH_WATERMARKS"/> <!-- DELETE THIS TO REMOVE WATERMARKS/DEV NAMES ON TITLE SCREEN -->
-	<define name="DISCORD_ALLOWED" if="desktop || mobile" unless="web" />
-
-	<assets path="assets/preload" rename="assets" exclude="*.ogg" if="web"/>
-	<assets path="assets/preload" rename="assets" exclude="*.mp3" unless="web"/>
-
-	<!-- DONT ENABLE THIS!! shut up shadowmario ill enable whatever i want-->
-	<define name="CHECK_FOR_UPDATES" />
-
-	<define name="PRELOAD_ALL" unless="web" />
-	<define name="NO_PRELOAD_ALL" unless="PRELOAD_ALL"/>
-	
+	<!-- Assets -->	
 	<library name="videos"        preload="true" />
 	<library name="splash"        preload="true" />
 	<section if="PRELOAD_ALL">
@@ -138,6 +118,15 @@
 	<assets path="assets/preload/models"        library="models"        /> 
 	<assets path="assets/preload/models"        library="models"        />
 
+	<define name="CHECK_FOR_UPDATES" if="officialBuild"/>
+
+	<section if="MODS_ALLOWED">
+		<assets path='example_mods' rename='mods' embed='false' />
+		<assets path='list.txt' rename='modsList.txt' />
+	</section>
+	
+	<assets path='art/readme.txt' rename='do NOT readme.txt' unless="mobile" />
+
 	<!-- OpenAL config -->
 	<section if="desktop">
 		<assets path="alsoft.txt" rename="plugins/alsoft.ini" type="text" if="windows"/>
@@ -145,59 +134,28 @@
 	</section>
 
 	<!-- _______________________________ Libraries ______________________________ -->
-	<haxelib name="lime" version="8.1.3" />
-	<haxelib name="flixel" version="git" />
-	<haxelib name="flixel-ui" version="2.6.1" />
-	<haxelib name="flixel-addons" version="3.2.3" />
-	<haxelib name="away3d" version="git"/>
-	
-	<!--JS stuff needed-->
-	<haxelib name="hscript" />
-	<haxedef name="hscriptPos" />
+
+	<haxelib name="flixel"/>
+	<haxelib name="flixel-addons" version="3.2.2"/>
+	<haxelib name="tjson" version="1.4.0"/>
+
+	<!--Psych stuff needed-->
 	<haxelib name="linc_luajit" if="LUA_ALLOWED"/>
-	<!--<haxelib name="hxCodec" if="VIDEOS_ALLOWED"/>-->
-
-	<haxelib name="hxvlc" if="VIDEOS_ALLOWED" version="1.9.2"/>
-
-	<haxelib name="hxdiscord_rpc" if="DISCORD_ALLOWED" />
+	<haxelib name="hscript-iris" if="HSCRIPT_ALLOWED"/>
+	<haxelib name="hxvlc" if="VIDEOS_ALLOWED"/>
+	<haxelib name="hxdiscord_rpc" if="DISCORD_ALLOWED"/>
 	<haxelib name="flxanimate"/>
-
-	<!-- Enables a terminal log prompt on debug builds -->
-	<haxelib name="hxcpp-debug-server" if="debug"/>
-	<haxedef name="HXC_LIBVLC_LOGGING" if="VIDEOS_ALLOWED debug" />
-	<haxedef name="HXVLC_NO_SHARE_DIRECTORY" if="VIDEOS_ALLOWED" />
-
-	<!--Disable the Flixel core focus lost screen-->
-	<haxedef name="FLX_NO_FOCUS_LOST_SCREEN" />
-
-	<!--Allow working memory greater than 1 Gig. NOTE: i recommend using Flixel 5.2.2 for this to work!-->
-	<haxedef name="HXCPP_GC_BIG_BLOCKS" if="cpp"/>
-	<!--also fixes like any "Memory Exhausted" issues you might get when compiling-->
-	
-	<!-- Show debug traces for hxCodec -->
-	<haxedef name="HXC_DEBUG_TRACE" if="debug" />
-	
-	<!--Disable the Flixel core debugger. Automatically gets set whenever you compile in release mode!-->
-	<haxedef name="FLX_NO_DEBUG" unless="debug" />
-
-	<!--Used for the engine's crash handler-->
-	<haxedef name="HXCPP_CHECK_POINTER"/>
-	<haxedef name="HXCPP_STACK_LINE"/>
-	<haxedef name="HXCPP_STACK_TRACE"/>
-	<haxedef name="HXCPP_CATCH_SEGV" />
-
-	<!-- Javascript breaks with inline for reasons unknown -->
-	<haxedef name="no-inline" if="html5"/>
-
-	<haxedef name='no-deprecation-warnings' unless="debug" />
 
 	<!-- Disable Discord IO Thread -->
 	<haxedef name="DISCORD_DISABLE_IO_THREAD" if="hxdiscord_rpc" />
 	<haxedef name="NO_PRECOMPILED_HEADERS" if="linux" />
 
-	<!--This fixes compiling with macros according to official PE source code-->
-	<haxeflag name="--macro" value="allowPackage('flash')" />
-	<haxeflag name="--macro" value="include('my.pack')" />
+	<!-- Enables a terminal log prompt on debug builds -->
+	<haxelib name="hxcpp-debug-server" if="debug"/>
+	<haxedef name="HXC_LIBVLC_LOGGING" if="VIDEOS_ALLOWED debug" />
+	<haxedef name="HXVLC_NO_SHARE_DIRECTORY" if="VIDEOS_ALLOWED" />
+	<haxedef name="HXVLC_EXPERIMENTAL_WINDOWSARM" if="windows HXCPP_ARM64" />
+	<define name="x86_BUILD" if="32bits" />
 	
 	<!-- ______________________________ Haxedefines _____________________________ -->
 
